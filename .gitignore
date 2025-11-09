@@ -1,24 +1,24 @@
-# --- Node / JS ---
+# Node
 node_modules/
 npm-debug.log*
 yarn-error.log*
 
-# --- Python ---
+# Python
 __pycache__/
 *.pyc
 
-# --- Secrets / Env ---
+# Env & secrets
 .env
 .env.*
+.envrc
 .env.local
 .env.backend*
-.env.stripe*
+.env.backend-*
 
-# --- Terraform (providers/state/caches/backup) ---
-.terraform/
-**/.terraform/**
-terraform.tfstate
-terraform.tfstate.*
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
 crash.log
 override.tf
 override.tf.json
@@ -27,8 +27,13 @@ override.tf.json
 .terraform.tfstate.lock.info
 terraform.tfvars
 terraform.tfvars.json
-**/terraform_backup/**
-**/terraform/.terraform/**
+terraform_backup/
+**/terraform_backup/*
 
-# --- Frontend build output ---
-frontend/dist/
+# macOS
+.DS_Store
+
+# Coverage/build
+coverage/
+build/
+dist/
