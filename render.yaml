@@ -15,26 +15,11 @@ services:
         value: production
       - key: SECRET_KEY
         sync: false
-      - key: DEMO_API_TOKEN
-        value: demo-token-please-change
-      - key: CORS_ORIGINS
-        value: "*"
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
-      - key: STRIPE_PRICE_STARTER
-        sync: false
-      - key: STRIPE_PRICE_PRO
-        sync: false
-      - key: STRIPE_PRICE_ENTERPRISE
-        sync: false
-      - key: STRIPE_BILLING_PORTAL_URL
-        sync: false
 
   - type: web
     name: inventory-guardian-frontend
     runtime: static
     rootDir: .
-    plan: starter
     buildCommand: npm ci && npm run build
     staticPublishPath: frontend/dist
     envVars:
@@ -42,4 +27,4 @@ services:
         fromService:
           name: inventory-guardian-backend
           type: web
-          envVarKey: RENDER_EXTERNAL_URL   # <-- use envVarKey, not property:url
+          envVarKey: RENDER_EXTERNAL_URL
