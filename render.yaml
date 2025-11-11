@@ -1,7 +1,7 @@
 services:
   - type: web
     name: inventory-guardian-backend
-    env: python
+    runtime: python
     rootDir: backend
     plan: starter
     autoDeploy: true
@@ -30,9 +30,9 @@ services:
       - key: STRIPE_BILLING_PORTAL_URL
         sync: false
 
-  - type: static_site
+  - type: web
     name: inventory-guardian-frontend
-    plan: starter
+    runtime: static
     rootDir: .
     buildCommand: npm ci && npm run build
     staticPublishPath: frontend/dist
