@@ -5,12 +5,12 @@ services:
     rootDir: backend
     plan: starter
     autoDeploy: true
-    buildCommand: pip install -r requirements.txt
+    buildCommand: python -m pip install --upgrade pip setuptools wheel && python -m pip install -r requirements.txt
     startCommand: bash scripts/render-start.sh
     healthCheckPath: /healthz
     envVars:
       - key: PYTHON_VERSION
-        value: "3.11"
+        value: "3.11.9"
       - key: APP_ENV
         value: production
       - key: SECRET_KEY
