@@ -1,41 +1,31 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from ..services.auth import require_auth
-from ..services import storage
+from ..services.db import get_session
+from ..services.models import Evidence
+from sqlalchemy import func
 import datetime
 
 bp = Blueprint("reports", __name__)
 
-@bp.get("/weekly")
-@require_auth
-def weekly():
-    week = request.args.get("week")
-    now = datetime.datetime.utcnow()
-    if not week:
-        iso_year, iso_week, _ = now.isocalendar()
-        week = f"{iso_year}-W{iso_week:02d}"
-
-    result = {
-        "week": week,
-        "totals": {
-            "menu_items": len(storage.list_menu_items()),
-            "calibrations": len(storage.list_calibrations()),
-            "alerts": len(storage.list_alerts())
-        },
-        "notes": [
-            "Counts are based on in-memory state in MVP scaffold."
-        ]
-    }
-    return jsonify(result), 200
-
 @bp.get("/roi")
 @require_auth
 def roi_summary():
-    # Compose ROI from current alerts and conservative seed
-    try:
-        from ..services.roi import monthly_roi_summary
-    except Exception as e:
-        return jsonify({"error": "roi_module_missing", "detail": str(e)}), 500
-
-    alerts = storage.list_alerts()
-    summary = monthly_roi_summary(alerts=alerts)
-    return jsonify(summary), 200
+    s = get_session()
+    if s:
+        mo = datetime.datetime.utcnow().strftime("%Y-%m")
+        rows = s.query(Evidence.category, func.sum(Evidence.amount_usd)).filter(Evidence.month==mo, Evidence.status=="protected").group_by(Evidence.category).all()
+        parts = {k: float(v or 0) for k, v in rows}
+        total = round(sum(parts.values()), 2)
+        return jsonify({
+            "month": mo,
+            "components": {
+                "dead_stock": {"usd": parts.get("dead_stock", 0)},
+                "stockouts": {"usd": parts.get("stockout_risk", 0)},
+                "promo_bleed": {"usd": parts.get("promo_bleed", 0)},
+                "alerts": {"usd": 0}
+            },
+            "total_protected_usd": total,
+            "source": "evidence_db"
+        }), 200
+    # Fallback when DB disabled
+    return jsonify({"month":"n/a","components":{"dead_stock":{"usd":100},"stockouts":{"usd":280},"promo_bleed":{"usd":360},"alerts":{"usd":0}},"total_protected_usd":740,"source":"seed"}), 200

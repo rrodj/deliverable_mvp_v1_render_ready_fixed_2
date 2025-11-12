@@ -1,0 +1,13 @@
+// API additions: importer, rules, evidence, ROI HTML
+export const uploadSalesCsv = async (file: File) => {
+  const form = new FormData(); form.append('file', file);
+  const r = await api.post('/imports/sales', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return r.data as { rows_ingested: number };
+};
+export const uploadOnhandCsv = async (file: File) => {
+  const form = new FormData(); form.append('file', file);
+  const r = await api.post('/imports/onhand', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return r.data as { items_updated: number };
+};
+export const runAnalysis = async () => (await api.post('/compute/scan')).data as { created_alerts: number, potential_usd: number };
+export const listEvidence = async () => (await api.get('/compute/evidence')).data as { evidence: any[] };
